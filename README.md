@@ -1,172 +1,253 @@
 # Pollinations Model Intelligence Registry
 
-A standalone Termux utility for recording model tests, evaluating responses, and performing carefully gated one-question live tests.
+**A simple, local toolkit for testing, comparing, and keeping track of AI models available through Pollinations.**
 
-## Human-readable output
+This project helps answer practical questions:
 
-Interactive reports now default to **plain text**. Use `--format json` when another program needs structured JSON.
+- Does a model respond successfully through the API?
+- Does it follow instructions and produce useful answers?
+- Which model actually handled a request?
+- How do different models compare on the same test questions?
+- What model details have changed between catalog snapshots?
 
-Examples:
+It keeps test history, benchmark results, and catalog information separate so a model's listing or a successful API response is not mistaken for proof that it is accurate, capable, or free to use.
+
+> **New here?** You do not need to understand every feature. Start with the Quick Start below, or run the interactive menu with python menu.py.
+
+## What this project does
+
+| Feature | In plain English |
+| --- | --- |
+| Model registry | Keeps a local history of model tests and their outcomes. |
+| Benchmarks | Provides 15 repeatable questions covering accuracy, reasoning, instructions, JSON, and coding. |
+| Live test runner | Lets you deliberately send one selected test question to one approved model. |
+| Model comparison | Summarizes and compares results already collected. |
+| Model catalog | Stores dated snapshots of published model information. |
+| Catalog differences | Shows which models or published details changed between two snapshots. |
+| Interactive menu | Puts the main tools behind a numbered menu for easier use. |
+
+The project runs independently on your own computer. It does not require an agent, a hosted service, or integration with another project.
+
+## Quick start
+
+### 1. Requirements
+
+- Python 3.9 or newer is recommended.
+- Git, if you are cloning the repository.
+- No third-party Python packages are required for the core tools. The project uses Python's standard library.
+
+### 2. Download the project
+
+Open a terminal and run:
+
+```sh
+git clone https://github.com/kbam94/pollinations-model-intelligence-registry.git
+cd pollinations-model-intelligence-registry
+```
+
+### 3. Open the interactive menu
+
+```sh
+python menu.py
+```
+
+Choose an option by entering its number. The menu puts the main tools in one place and keeps live testing separate from offline work.
+
+### 4. Or run a few commands directly
+
+View a summary of saved test history:
 
 ```sh
 python registry.py summary
-python registry.py summary --format json
+```
+
+List recent test records:
+
+```sh
 python registry.py list --limit 10
-python registry.py list --model gpt-5-nano --format json
-python benchmark.py list-cases
-python benchmark.py list-cases --format json
-python live_runner.py preview --model openai/gpt-5-nano --case accuracy-001
-python live_runner.py preview --model openai/gpt-5-nano --case accuracy-001 --format json
 ```
 
-## Safety and scope
-
-- Registry commands and benchmark scoring are offline and make no model API calls.
-- Live testing is a separate command, one question per invocation, with an interactive typed confirmation.
-- Live testing accepts only the original `~/.config/pollinations/api_key` when it exactly matches `POLLINATIONS_API_KEY` in the shell. The paid-enabled diagnostic key is never read or used.
-- Live test prompts and response bodies are not stored in SQLite. Only metadata, evaluation outcome, reported token counts, and a short reason are recorded.
-- Every live request may consume earned Quest Pollen. No model is assumed free merely from catalog pricing or metadata.
-- HTTP 200 is not automatically a quality pass.
-
-## Registry
-
-```sh
-cd ~/projects/active/pollinations/model-intelligence-registry
-python registry.py summary
-python registry.py list --limit 50
-python registry.py import-jsonl data/initial_results.jsonl
-python registry.py export-jsonl backup.jsonl
-```
-
-Add `--format json` to summary, list, init, or import-jsonl when machine-readable output is needed.
-
-## Offline benchmarks
-
-List cases:
+See the benchmark questions:
 
 ```sh
 python benchmark.py list-cases
 ```
 
-Export prompts as JSONL without making a request:
+Compare previously recorded results:
 
 ```sh
-python benchmark.py plan --model openai/gpt-5-nano > ~/tmp/gpt5nano-plan.jsonl
+python compare.py history
 ```
 
-Score separately collected responses:
+Browse locally imported model catalog information:
 
 ```sh
-python benchmark.py score ~/tmp/gpt5nano-responses.jsonl
-python benchmark.py score ~/tmp/gpt5nano-responses.jsonl --format json --output ~/tmp/gpt5nano-report.json
+python catalog.py list
 ```
 
-Scoring prints a readable report by default. If `--output` is supplied, the saved report remains JSON for portability and further processing.
+These commands work with local data. They do not send model prompts to an API.
 
-There are 15 deterministic cases across accuracy, instruction following, JSON, reasoning, and coding. Coding checks recommend manual review and are not proof of correctness or security.
+## Understanding the results
 
-## Live runner: preview first
+- **Requested model:** the model ID the test asked the service to use.
+- **Actual routed model:** the model ID reported as having handled the request. It can differ from the requested ID.
+- **Compatibility:** whether the request worked at the API level.
+- **Quality:** whether the answer passed the benchmark's checks. A successful HTTP response is not automatically a good answer.
+- **Catalog metadata:** published information such as context size, tool support, pricing text, and provider. This is not a performance measurement.
+- **Evidence level:** how much test data exists. A result based on one or two attempts is weak evidence, not a reliable ranking.
 
-Preview one case. This does not make an API request or read credentials:
+The benchmark currently contains 15 deterministic cases in five categories. It is a useful starting point, not a scientific or comprehensive evaluation. Coding checks are limited and may require manual review.
+
+## How testing works
+
+### Offline tests and reports
+
+Most features are offline. You can inspect history, list benchmark cases, create a test plan, score responses collected elsewhere, compare saved results, browse catalog snapshots, and run the test suite without making model requests.
+
+Create an offline benchmark plan:
+
+```sh
+python benchmark.py plan --model openai/gpt-5-nano > ~/tmp/model-plan.jsonl
+```
+
+Score responses that have already been collected:
+
+```sh
+python benchmark.py score ~/tmp/model-responses.jsonl
+```
+
+### Live model tests
+
+Live tests are intentionally cautious because requests may consume earned **Quest Pollen**.
+
+First preview a test. Previewing does not make an API request or read credentials:
 
 ```sh
 python live_runner.py preview --model openai/gpt-5-nano --case accuracy-001
 ```
 
-Run one live question only when you deliberately choose to spend possible Quest Pollen:
+Only run a live test if you understand and accept the possible Pollen cost:
 
 ```sh
 python live_runner.py run --model openai/gpt-5-nano --case accuracy-001
 ```
 
-The runner verifies that the shell key exactly matches the original Quest-only key file, requires an interactive terminal, displays the model/prompt/output cap and Pollen warning, then requires the exact phrase `RUN ONE QUEST-ONLY TEST`. Any other input cancels. The initial allowlist contains only models previously smoke-tested with the Quest-only key. The runner has no batch mode and a maximum output cap of 128 tokens.
+The live runner:
+- Runs one question per invocation. There is no batch mode.
+- Requires an interactive terminal and an exact typed confirmation.
+- Uses only the original Quest-only key when it matches the configured shell environment key.
+- Does not read or use the separate paid-enabled diagnostic key.
+- Limits the output to a maximum of 128 tokens.
+- Saves test metadata and reported usage, not raw prompts or response bodies.
 
-Live preview and result displays default to plain text. Add `--format json` for structured output.
+The initial live-test allowlist contains only models previously smoke-tested with the Quest-only key. This local safeguard is not a guarantee that a future request will be accepted or cost no Pollen.
 
-## Model Comparison Center
+**If you are unsure, use preview mode and offline features only.**
 
-Compare historical registry outcomes without modifying the database or making API calls:
+## Model comparison
+
+Compare saved test history:
 
 ```sh
 python compare.py history
-python compare.py history --format json
 ```
 
-Compare models from a saved offline benchmark report:
+Compare models in a saved benchmark report:
 
 ```sh
-python compare.py benchmark ~/tmp/gpt5nano-report.json
+python compare.py benchmark ~/tmp/model-benchmark-report.json
 ```
 
-The report separates scored pass rate from pass rate across all attempts, shows actual routed model IDs, provider, token/latency samples, and evidence level. Very small samples are explicitly labeled. Missing measurements are not treated as zero, and a paid-Pollen-required result is clearly identified. A passing smoke test is not a reliable leaderboard by itself.
+The comparison report can show pass rates, sample sizes, actual routed model IDs, provider information, latency, and reported token usage. It distinguishes scored results from all attempts and labels very small samples. Missing measurements are left missing rather than treated as zero.
 
-## Model Catalog Intelligence
+Do not treat a small sample or a single successful smoke test as a definitive leaderboard.
 
-The catalog is a separate SQLite database (`data/model_catalog.sqlite3`) for dated metadata snapshots. It is deliberately separate from observed model-test outcomes.
+## Model catalog snapshots
 
-Create a local JSONL snapshot file with one record per model. Example:
+The catalog stores published model metadata in a database separate from test history. Importing a snapshot is an explicit local action; the project does not automatically discover models or fetch a catalog at startup.
 
-```json
-{"model_id":"openai/gpt-5-nano","snapshot_at":"2026-11-11T12:00:00Z","paid_only":false,"input_price":"catalog value as published","output_price":"catalog value as published","context_window":128000,"supports_tools":true,"provider":"Pollinations","source":"Pollinations text model catalog","notes":"metadata snapshot only"}
-```
-
-Import and browse snapshots:
+Initialize the catalog database:
 
 ```sh
 python catalog.py init
-python catalog.py import-jsonl ~/tmp/pollinations-catalog.jsonl
-python catalog.py list
-python catalog.py list --all-snapshots
-python catalog.py list --model gpt-5-nano --format json
 ```
 
-Catalog browsing is read-only. Imports are explicit and duplicate-safe. Price fields are retained as published strings because units and billing semantics can vary. The catalog does not infer Quest eligibility: `paid_only=false`, a zero-looking price, or any catalog listing is not proof that a model accepts your Quest-only key. The importer rejects fields such as `quest_eligible` to prevent that distinction from being blurred.
+Import a JSONL snapshot file:
+
+```sh
+python catalog.py import-jsonl ~/tmp/pollinations-catalog.jsonl
+```
+
+Browse snapshots:
+
+```sh
+python catalog.py list
+python catalog.py list --all-snapshots
+```
 
 Compare the two newest local snapshots:
 
 ```sh
 python catalog.py diff
-python catalog.py diff --format json
 ```
 
-Choose exact snapshots when needed:
+Catalog fields such as a zero-looking price or paid_only=false do **not** prove that a model can be used with a Quest-only key. The catalog intentionally does not infer Quest eligibility.
 
-```sh
-python catalog.py diff --from-snapshot '2026-11-10T12:00:00Z' --to-snapshot '2026-11-11T12:00:00Z'
-```
+## Where your data is stored
 
-The diff reports added/removed models and changes to published paid-only status, price strings, context window, tool support, and provider. It is entirely offline and does not establish Quest-key eligibility or model performance.
+By default, local databases are created under the project's data/ directory:
 
-## Tests
+- data/model_tests.sqlite3 — test history.
+- data/model_catalog.sqlite3 — catalog snapshots.
+
+These are local runtime files, not part of the public source release. Keep your own backups if the recorded history matters to you. Do not publish API keys, raw private prompts, or response data.
+
+## Run the tests
+
+From the project directory:
 
 ```sh
 python -m unittest discover -s tests -v
 ```
 
-## Data handling
+The tests check core behavior, validation, safe live-runner safeguards, readable output, and catalog comparison behavior. They do not prove that every model or remote API will work.
 
-Default database: `data/model_tests.sqlite3`. Token counts are provider-reported and are not a Pollen balance ledger. Never commit credentials or raw prompt/response data.
+## Frequently asked questions
 
+### Does this project run AI models on my device?
+No. It records and evaluates model tests and can send a deliberately approved live request through the Pollinations service. It is not a local model runtime.
 
-## Interactive Termux menu
+### Does opening the menu use Pollen?
+No. Opening the menu and using its offline features do not make model requests. The live-test action is separate and may consume earned Quest Pollen.
 
-Start from the project directory:
+### Does a model appearing in the catalog mean it is free?
+No. Catalog metadata is informational and may be incomplete or change. It does not prove that a model accepts a particular key or has no usage cost.
 
-    cd ~/projects/active/pollinations/model-intelligence-registry
-    python menu.py
+### Does a successful request mean the model is intelligent or accurate?
+No. It means the request succeeded. Answer quality is evaluated separately, and even benchmark scores are only evidence from the tested questions and sample size.
 
-Menu actions:
-1. View model registry and test history.
-2. Browse the 15 benchmark questions.
-3. Generate an offline JSONL benchmark plan. No model call.
-4. Preview one live model test. No API call or credential read.
-5. Run one live model test. This may consume earned Quest Pollen and requires the menu acknowledgement plus the live runner's separate exact confirmation.
-6. Score a previously collected response JSONL file offline.
-7. Export registry history to JSONL.
-8. Run Python compilation and the complete unit-test suite.
-9. Compare historical model results locally. This is read-only and makes no API calls.
-10. Browse model catalog snapshots locally. No API calls.
+### Does it upload my database?
+No automatic database upload is part of the project. The registry and catalog are local SQLite databases. You can explicitly export registry history to JSONL.
 
-The menu uses only Python's standard library and existing project modules. Model choices are read from the live runner's allowlist. Generated files default to timestamped paths under ~/tmp; existing files are never overwritten without an explicit YES confirmation.
+### Is it connected to an AI agent or another project?
+No integration is required. The project is standalone. Its JSONL exports can be used by other tools if you choose, but that is optional.
 
-Important: Options 1-4 and 6-10 are local/offline operations. Option 5 is the only menu action that sends a model request. No paid-enabled diagnostic key is accessed, and the menu does not include paid-only models.
+### What should I read next?
+- [WHAT_IS.md](WHAT_IS.md) — short project explanation.
+- [FAQ.md](FAQ.md) — common questions.
+- [PROJECT_STATUS.md](PROJECT_STATUS.md) — what is implemented today.
+- [ROADMAP.md](ROADMAP.md) — planned work.
+- [benchmarks/README.md](benchmarks/README.md) — benchmark details.
+- [CONTRIBUTING.md](CONTRIBUTING.md) — contribution guidance.
+
+## Project status
+
+Current version: **0.8.0**
+
+The registry, offline benchmark engine, guarded one-question live runner, interactive menu, comparison center, catalog snapshot store, and offline catalog difference reports are implemented.
+
+Some roadmap items remain unfinished. See [ROADMAP.md](ROADMAP.md) for the current plan.
+
+## License
+
+See the repository's license file if one is present. If no license file is included, the source is publicly viewable but reuse and redistribution are not automatically granted.
