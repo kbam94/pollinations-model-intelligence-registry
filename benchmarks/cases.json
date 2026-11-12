@@ -1,0 +1,136 @@
+[
+  {
+    "id": "accuracy-001",
+    "category": "basic_accuracy",
+    "type": "exact",
+    "prompt": "What is 19 + 23? Reply with only the number.",
+    "expected": "42"
+  },
+  {
+    "id": "accuracy-002",
+    "category": "basic_accuracy",
+    "type": "exact",
+    "prompt": "What is 81 - 29? Reply with only the number.",
+    "expected": "52"
+  },
+  {
+    "id": "accuracy-003",
+    "category": "basic_accuracy",
+    "type": "exact",
+    "prompt": "What is 7 multiplied by 8? Reply with only the number.",
+    "expected": "56"
+  },
+  {
+    "id": "instruction-001",
+    "category": "instruction_following",
+    "type": "exact",
+    "prompt": "Reply with exactly this uppercase word and nothing else: READY",
+    "expected": "READY"
+  },
+  {
+    "id": "instruction-002",
+    "category": "instruction_following",
+    "type": "exact",
+    "prompt": "Reply with exactly this lowercase word and nothing else: approved",
+    "expected": "approved"
+  },
+  {
+    "id": "instruction-003",
+    "category": "instruction_following",
+    "type": "exact",
+    "prompt": "Return exactly these three words separated by commas, with no spaces: red,green,blue",
+    "expected": "red,green,blue"
+  },
+  {
+    "id": "json-001",
+    "category": "structured_output",
+    "type": "json_object",
+    "prompt": "Return one valid JSON object and no markdown. It must contain exactly these keys: name, count, active. Use name=\"widget\", count=3, active=true.",
+    "expected": {
+      "name": "widget",
+      "count": 3,
+      "active": true
+    }
+  },
+  {
+    "id": "json-002",
+    "category": "structured_output",
+    "type": "json_object",
+    "prompt": "Return only a JSON object with exactly two keys: status set to \"ok\" and items set to the array [2,4,6].",
+    "expected": {
+      "status": "ok",
+      "items": [
+        2,
+        4,
+        6
+      ]
+    }
+  },
+  {
+    "id": "json-003",
+    "category": "structured_output",
+    "type": "json_object",
+    "prompt": "Return only this JSON object structure: user is an object with name \"Ada\" and role \"admin\"; enabled is true.",
+    "expected": {
+      "user": {
+        "name": "Ada",
+        "role": "admin"
+      },
+      "enabled": true
+    }
+  },
+  {
+    "id": "reasoning-001",
+    "category": "reasoning",
+    "type": "exact",
+    "prompt": "A shelf has 3 boxes. Each box contains 5 packs. Each pack contains 4 cards. How many cards are there in total? Reply with only the number.",
+    "expected": "60"
+  },
+  {
+    "id": "reasoning-002",
+    "category": "reasoning",
+    "type": "exact",
+    "prompt": "Three notebooks cost $2.50 each and one pen costs $1.00. What is the total cost in dollars? Reply with only the number, without a currency symbol.",
+    "expected": "8.5"
+  },
+  {
+    "id": "reasoning-003",
+    "category": "reasoning",
+    "type": "exact",
+    "prompt": "Four machines each make 6 parts per hour. How many parts do they make in 3 hours? Reply with only the number.",
+    "expected": "72"
+  },
+  {
+    "id": "coding-001",
+    "category": "coding",
+    "type": "contains_all",
+    "prompt": "Write a Python function named is_even(n) that returns True when n is even and False otherwise. Return only the function code.",
+    "expected": [
+      "def is_even(n):",
+      "return n % 2 == 0"
+    ],
+    "manual_review": true
+  },
+  {
+    "id": "coding-002",
+    "category": "coding",
+    "type": "contains_all",
+    "prompt": "Write a Python function named square(n) that returns the square of n. Return only the function code.",
+    "expected": [
+      "def square(n):",
+      "return n * n"
+    ],
+    "manual_review": true
+  },
+  {
+    "id": "coding-003",
+    "category": "coding",
+    "type": "contains_all",
+    "prompt": "Write a Python function named is_positive(n) that returns True only when n is greater than zero. Return only the function code.",
+    "expected": [
+      "def is_positive(n):",
+      "return n > 0"
+    ],
+    "manual_review": true
+  }
+]

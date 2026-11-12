@@ -1,0 +1,27 @@
+# Directory Map
+
+- menu.py — interactive Termux menu for common registry and benchmark workflows.
+- registry.py — local SQLite registry CLI; text output by default, optional JSON.
+- benchmark.py — offline benchmark planner and scorer; readable reports, JSONL plans.
+- live_runner.py — one-question Quest-only live runner with preview, typed confirmation, and readable output.
+- compare.py — read-only historical registry and saved benchmark report comparison; no API calls.
+- catalog.py — explicit JSONL import, read-only browsing, and offline comparison of dated catalog metadata snapshots.
+- benchmarks/cases.json — 15 deterministic benchmark cases.
+- benchmarks/README.md — response format and benchmark instructions.
+- tests/test_benchmark.py — offline evaluator tests.
+- tests/test_compare.py — comparison aggregation, read-only history access, evidence labels, and report rendering tests.
+- tests/test_catalog.py — catalog import, validation, duplicate protection, metadata boundaries, and read-only listing tests.
+- tests/test_catalog_diff.py — catalog addition/removal/change detection, explicit snapshot selection, and safe empty-state tests.
+- data/model_catalog.sqlite3 — separate catalog snapshot database, created only by explicit init/import.
+- tests/test_live_runner.py — live-runner safeguards and metadata persistence tests.
+- tests/test_text_output.py — readable-output tests.
+- tests/test_menu.py — menu input, safe-overwrite, and allowlist tests.
+- data/initial_results.jsonl — metadata-only historical test results.
+- data/model_tests.sqlite3 — local test-history database.
+- README.md — setup, usage, output formats, and safety.
+- WHAT_IS.md — project purpose and boundaries.
+- PROJECT_STATUS.md — implementation and validation state.
+- ROADMAP.md — planned phases.
+- NEXT_SESSION.md — next-session checklist.
+- CHANGELOG.md — implementation history.
+- CONTRIBUTING.md — change and safety rules.
